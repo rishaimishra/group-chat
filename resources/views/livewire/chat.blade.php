@@ -34,16 +34,21 @@
 
             {{-- Messages --}}
             <div class="flex-1 p-4 overflow-y-auto space-y-2 bg-gray-50">
-                <div class="flex justify-end">
-                    <div class="max-w-xs px-4 py-2 rounded-2xl shadow bg-blue-600 text-white">
-                        Hi, This is test
+
+                @foreach ($messages as $message)
+                    <div class="flex {{ $message->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                        <div class="max-w-xs px-4 py-2 rounded-2xl shadow {{ $message->sender_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-white text-black' }}">
+                            {{$message->message}}
+                        </div>
                     </div>
-                </div>
+                @endforeach
+
             </div>
 
+
             {{-- Input field --}}
-            <form action="" class="p-4 border-t bg-white flex items-center gap-2">
-                <input type="text"
+            <form wire:submit="submit" class="p-4 border-t bg-white flex items-center gap-2">
+                <input wire:model="newMessage" type="text"
                     class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline">
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-full">Send</button>
