@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Events\MessageSent;
 use App\Models\ChatMessage;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -16,19 +17,14 @@ class Chat extends Component
 
     public $messages;
 
+    public $loginID;
+
     public function mount()
     {
         $this->users = User::whereNot("id", Auth::id())->latest()->get();
         $this->selectedUser = $this->users->first();
         $this->loadMessages();
-        $this->messages = ChatMessage::query()
-            ->where(function ($q) {
-                $q->where("sender_id", Auth::id())->where("receiver_id", $this->selectedUser->id);
-            })
-            ->orWhere(function ($q) {
-                $q->where("sender_id", $this->selectedUser->id)->where("receiver_id", Auth::id());
-            })
-            ->latest()->get();
+        $this->loginID = Auth::id();
     }
 
     public function loadMessages()
@@ -64,6 +60,21 @@ class Chat extends Component
         $this->messages->push($message);
 
         $this->newMessage = '';
+
+        broadcast(new MessageSent($message));
+    }
+
+    public function getListeners(){
+        return [
+            "echo-private:chat.{$this->loginID},MessageSent" => "newChatMessageNotification"
+        ];
+    }
+
+    public function newChatMessageNotification($message){
+        if ($message['sender_id'] == $this->selectedUser->id) {
+            $messageObj = ChatMessage::find($message['id']);
+            $this->messages->push($messageObj);
+        }
     }
     public function render()
     {
