@@ -64,6 +64,10 @@ class Chat extends Component
         broadcast(new MessageSent($message));
     }
 
+    public function updateNewMessage($value){
+        $this->dispatch("userTyping", userID: $this->loginID, userName: Auth::id(), selectedUserID: $this->selectedUser->id);
+    }
+
     public function getListeners(){
         return [
             "echo-private:chat.{$this->loginID},MessageSent" => "newChatMessageNotification"
