@@ -65,7 +65,7 @@ class Chat extends Component
     }
 
     public function updateNewMessage($value){
-        $this->dispatch("userTyping", userID: $this->loginID, userName: Auth::id(), selectedUserID: $this->selectedUser->id);
+        $this->dispatch("userTyping", userID: $this->loginID, userName: Auth::user()->name, selectedUserID: $this->selectedUser->id);
     }
 
     public function getListeners(){
